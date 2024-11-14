@@ -1,5 +1,7 @@
 import React from 'react';
-import SupplementList from './components/SupplementList';
+import SupplementList from './components/Supplement/SupplementList';
+import ConstraintList from './components/Constraint/ConstraintList';
+import CalculationColumn from './components/CalculationColumn';
 
 function App() {
   return (
@@ -8,11 +10,9 @@ function App() {
         <SupplementList />
       </div>
       <div className="flex-1 p-4 border border-black">
-        Column 2
+        <ConstraintList />
       </div>
-      <div className="flex-1 p-4 border border-black">
-        Column 3
-      </div>
+      <CalculationColumn />
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import { Supplement } from '../repository/SupplementRepository';
+
 export type Constraints = {
     [key: string]: {
         target: number;
@@ -5,13 +7,7 @@ export type Constraints = {
     }
 }
 
-export type Option = {
-    id: string;
-    ingredients: {
-        name: string;
-        amount: number;
-    }[]
-}
+export type Option = Supplement;
 
 export type Options = Option[]
 
@@ -91,6 +87,10 @@ export function maximumNumberOfSupplement(supplement: Option, constraints: Const
         }
     }
 
+    if (maxSupplements === Infinity) {
+        return 100;
+    }
+
     return maxSupplements;
 }
 
@@ -103,6 +103,8 @@ export function maximumNumberOfSupplement(supplement: Option, constraints: Const
 export function generateAllCombinations(maxCounts: number[]): number[][] {
     // calculate the number of possible combinations
     const numberOfCombinations = maxCounts.reduce((product, count) => product * (count + 1), 1);
+
+    console.log('Number of combinations:', numberOfCombinations, maxCounts);
 
     if (numberOfCombinations > 1000000) {
         throw new Error('Too many combinations');

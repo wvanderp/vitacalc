@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Supplement } from '../repository/SupplementRepository';
+import { Supplement } from '../../repository/SupplementRepository';
 import { FaTrash, FaPlus } from 'react-icons/fa';
+import names from '../../repository/NamesRepository';
 
 interface SupplementFormProps {
   onAddSupplement: (supplement: Supplement) => void;
@@ -52,9 +53,11 @@ const SupplementForm: React.FC<SupplementFormProps> = ({ onAddSupplement, onClos
 
   const isFormValid = name && ingredients.every(ingredient => ingredient.name && ingredient.amount);
 
+  console.log(names)
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md max-h-full overflow-y-auto">
         <h2 className="text-2xl font-bold mb-4">{supplement ? 'Edit' : 'Add'} Supplement</h2>
         {error && <div className="text-red-500 mb-2">{error}</div>}
         <input
@@ -80,27 +83,26 @@ const SupplementForm: React.FC<SupplementFormProps> = ({ onAddSupplement, onClos
         />
         <h3 className="text-xl font-semibold mb-2 flex items-center">
           Ingredients
-          <button
-            onClick={handleAddIngredient}
-            className="ml-2 text-gray-500 hover:text-green-500"
-          >
-            <FaPlus />
-          </button>
         </h3>
         {ingredients.map((ingredient, index) => (
           <div key={index} className="mb-4">
-            <input
-              type="text"
-              placeholder="Ingredient Name"
+            <select
               value={ingredient.name}
               onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
               className="w-full p-2 mb-2 border border-gray-300 rounded"
-            />
+            >
+              <option value="">Select Ingredient</option>
+              {names.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
             <input
-              type="number"
               placeholder="Amount (mg)"
+              type="number"
               value={ingredient.amount}
-              onChange={(e) => handleIngredientChange(index, 'amount', parseInt(e.target.value))}
+              onChange={(e) => handleIngredientChange(index, 'amount', parseFloat(e.target.value))}
               className="w-full p-2 border border-gray-300 rounded"
             />
             <button
@@ -111,6 +113,12 @@ const SupplementForm: React.FC<SupplementFormProps> = ({ onAddSupplement, onClos
             </button>
           </div>
         ))}
+                  <button
+            onClick={handleAddIngredient}
+            className="ml-2 text-gray-500 hover:text-green-500"
+          >
+            <FaPlus />
+          </button>
         <button
           onClick={handleSubmit}
           className={`w-full p-2 mb-4 text-white rounded ${isFormValid ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 cursor-not-allowed'}`}

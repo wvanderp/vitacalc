@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import SupplementRepository, { Supplement } from '../repository/SupplementRepository';
+import SupplementRepository, { Supplement } from '../../repository/SupplementRepository';
 import SupplementComponent from './Supplement';
 import SupplementForm from './SupplementForm';
-import { FaTrash, FaPlus, FaEdit } from 'react-icons/fa';
+import { FaTrash, FaEdit } from 'react-icons/fa';
 
 function SupplementList() {
     const [supplements, setSupplements] = useState<Supplement[]>([]);
@@ -41,7 +41,7 @@ function SupplementList() {
             <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => setShowForm(true)}>Add Supplement</button>
             <div className="grid grid-cols-1 gap-4 mt-4">
                 {supplements.map((supplement) => (
-                    <div key={supplement.id} className="card bg-white shadow-lg hover:shadow-xl rounded-lg p-4 border border-gray-200 transition-shadow duration-300 relative">
+                    <div key={supplement.id} className="card bg-white shadow-lg hover:shadow-xl rounded-lg p-4 border border-gray-200 transition-shadow duration-300">
                         <SupplementComponent supplement={supplement} />
                         <div className="flex justify-end mt-2 border-t pt-2 gap-2">
                             <button 
