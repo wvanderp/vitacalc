@@ -37,4 +37,43 @@ class ConstraintRepository extends Repository<Constraint[]> {
     }
 }
 
+export type RequirementConstraint = {
+    id: number;
+    amount: number;
+    supplementId: number;
+}
+
+export class RequirementRepository extends Repository<RequirementConstraint[]> {
+    constructor() {
+        super('requirements', []);
+    }
+
+    addRequirement(requirement: RequirementConstraint): void {
+        this.data.push(requirement);
+        this.save();
+    }
+
+    removeRequirement(requirementId: number): void {
+        this.data = this.data.filter((requirement) => requirement.id !== requirementId);
+        this.save();
+    }
+
+    updateRequirement(requirement: RequirementConstraint): boolean {
+        const index = this.data.findIndex((r) => r.id === requirement.id);
+        if (index === -1) return false;
+
+        this.data[index] = requirement;
+        this.save();
+        return true;
+    }
+
+    getAllRequirements(): RequirementConstraint[] {
+        return this.data;
+    }
+
+    getRequirementById(requirementId: number): RequirementConstraint | undefined {
+        return this.data.find((requirement) => requirement.id === requirementId);
+    }
+}
+
 export default ConstraintRepository;

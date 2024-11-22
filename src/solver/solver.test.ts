@@ -1,4 +1,9 @@
-import { solve, Constraints, Options, calculateAmounts, maximumNumberOfSupplement, AmountsExceedConstraints, generateAllCombinations } from './solver';
+import { solve, Constraints, Options, calculateAmounts, maximumNumberOfSupplement, AmountsExceedConstraints, generateAllCombinations, Option } from './solver';
+
+function createSupplement(name: string, ingredients: {name:string, amount: number}[], id?: number): Option {
+    return { id: id ?? Math.random(), name: name, maker: "Unknown", ingredients };
+}
+
 
 describe('solve', () => {
     it('should return an empty array when no options are provided', () => {
@@ -13,12 +18,16 @@ describe('solve', () => {
             vitaminC: { target: 100, max: 200 }
         };
         const options: Options = [
-            { id: 'small', ingredients: [{ name: 'vitaminC', amount: 12.5 }] },
-            { id: 'big', ingredients: [{ name: 'vitaminC', amount: 75 }] }
+            { id: 1, name: 'small', maker: "unknown", ingredients: [{ name: 'vitaminC', amount: 12.5 }] },
+            { id: 2, name: 'big', maker: "unknown", ingredients: [{ name: 'vitaminC', amount: 75 }] }
         ];
         const result = solve(contains, options);
         expect(result).toHaveLength(33);
-        expect(result[0]).toEqual([[2, options[0]], [1, options[1]]]);
+        expect(result[0]).toEqual({
+            distance: 0,
+            numberOfSupplements: 3,
+            supplements: [[2, options[0]], [1, options[1]]]
+        });
     });
 
     it('should return the correct amounts for given options with multiple ingredients', () => {
@@ -27,12 +36,34 @@ describe('solve', () => {
             vitaminD: { target: 50, max: 150 }
         };
         const options: Options = [
-            { id: 'small', ingredients: [{ name: 'vitaminC', amount: 12.5 }, { name: 'vitaminD', amount: 15 }] },
-            { id: 'big', ingredients: [{ name: 'vitaminC', amount: 75 }, { name: 'vitaminD', amount: 50 }] }
+            { id: 1, name: 'small', maker: "unknown", ingredients: [{ name: 'vitaminC', amount: 12.5 }, { name: 'vitaminD', amount: 15 }] },
+            { id: 2, name: 'big', maker: "unknown", ingredients: [{ name: 'vitaminC', amount: 75 }, { name: 'vitaminD', amount: 50 }] }
         ];
         const result = solve(contains, options);
         expect(result).toHaveLength(22);
-        expect(result[0]).toEqual([[0, options[0]], [1, options[1]]]);
+        expect(result[0]).toEqual({
+            distance: 25,
+            numberOfSupplements: 1,
+            supplements: [[0, options[0]], [1, options[1]]]
+        });
+    });
+
+    it('Should accept a set of required supplements, that must be included in the result', () => {
+        const contains: Constraints = {
+            zinc: { target: 10, max: 20 },
+            magnesium: { target: 10, max: 20 }
+        };
+        const options: Options = [
+            { id: 1, name: 'small', maker: "unknown", ingredients: [{ name: 'zinc', amount: 5 }, { name: 'magnesium', amount: 5 }] },
+            { id: 2, name: 'big', maker: "unknown", ingredients: [{ name: 'vitD', amount: 10 }, { name: 'magnesium', amount: 10 }] }
+        ];
+        const result = solve(contains, options, [{ amount: 1, supplement: options[1] }]);
+        expect(result).toHaveLength(4);
+        expect(result[0]).toEqual({
+            distance: 10,
+            numberOfSupplements: 1,
+            supplements: [[0, options[0]], [1, options[1]]]
+        });
     });
 });
 
@@ -44,8 +75,8 @@ describe('calculateAmounts', () => {
 
     it('should return the correct amounts for given supplements', () => {
         const options: Options = [
-            { id: 'small', ingredients: [{ name: 'vitaminC', amount: 12.5 }] },
-            { id: 'big', ingredients: [{ name: 'vitaminC', amount: 75 }] }
+            createSupplement('small', [{ name: 'vitaminC', amount: 12.5 }]),
+            createSupplement('big', [{ name: 'vitaminC', amount: 75 }])
         ];
         const supplements = [
             [2, options[0]],
@@ -60,8 +91,8 @@ describe('calculateAmounts', () => {
 
     it('should return the correct amounts for given supplements with multiple ingredients', () => {
         const options: Options = [
-            { id: 'small', ingredients: [{ name: 'vitaminC', amount: 12.5 }, { name: 'vitaminD', amount: 150 }] },
-            { id: 'big', ingredients: [{ name: 'vitaminC', amount: 75 }, { name: 'vitaminD', amount: 50 }] }
+            createSupplement('small', [{ name: 'vitaminC', amount: 12.5 }, { name: 'vitaminD', amount: 150 }]),
+            createSupplement('big', [{ name: 'vitaminC', amount: 75 }, { name: 'vitaminD', amount: 50 }])
         ];
         const supplements = [
             [2, options[0]],
@@ -77,18 +108,20 @@ describe('calculateAmounts', () => {
 });
 
 describe('maximumNumberOfSupplement', () => {
-    it('should return Infinity when no constraints are provided', () => {
+    it('should return 100 when the supplement is unconstrained', () => {
+        // 100 was chosen as the maximum number of supplements so that the test would not fail due to the number of combinations being too high
         const constraints: Constraints = {};
-        const supplement = { id: 'small', ingredients: [{ name: 'vitaminC', amount: 12.5 }] };
+
+        const supplement = createSupplement('small', [{ name: 'vitaminC', amount: 12.5 }]);
         const result = maximumNumberOfSupplement(supplement, constraints);
-        expect(result).toBe(Infinity);
+        expect(result).toBe(100);
     });
 
     it('should return the maximum number of supplements for given constraints', () => {
         const constraints: Constraints = {
             vitaminC: { target: 100, max: 200 }
         };
-        const supplement = { id: 'small', ingredients: [{ name: 'vitaminC', amount: 12.5 }] };
+        const supplement = createSupplement('small', [{ name: 'vitaminC', amount: 12.5 }]);
         const result = maximumNumberOfSupplement(supplement, constraints);
         expect(result).toBe(16);
     });
@@ -98,7 +131,8 @@ describe('maximumNumberOfSupplement', () => {
             vitaminC: { target: 100, max: 200 },
             vitaminD: { target: 100, max: 200 }
         };
-        const supplement = { id: 'small', ingredients: [{ name: 'vitaminC', amount: 12.5 }, { name: 'vitaminD', amount: 150 }] };
+
+        const supplement = createSupplement('small', [{ name: 'vitaminC', amount: 12.5 }, { name: 'vitaminD', amount: 150 }]);
         const result = maximumNumberOfSupplement(supplement, constraints);
         expect(result).toBe(1);
     });
@@ -108,7 +142,8 @@ describe('maximumNumberOfSupplement', () => {
             vitaminC: { target: 100, max: 12.5 },
             vitaminD: { target: 50, max: 150 }
         };
-        const supplement = { id: 'small', ingredients: [{ name: 'vitaminC', amount: 12.5 }, { name: 'vitaminD', amount: 150 }] };
+
+        const supplement = createSupplement('small', [{ name: 'vitaminC', amount: 12.5 }, { name: 'vitaminD', amount: 150 }]);
         const result = maximumNumberOfSupplement(supplement, constraints);
         expect(result).toBe(1);
     });
@@ -118,7 +153,8 @@ describe('maximumNumberOfSupplement', () => {
             vitaminC: { target: 100, max: 12.5 },
             vitaminD: { target: 50, max: 150 }
         };
-        const supplement = { id: 'small', ingredients: [{ name: 'vitaminC', amount: 12.5 }, { name: 'vitaminD', amount: 500 }] };
+
+        const supplement = createSupplement('small', [{ name: 'vitaminC', amount: 12.5 }, { name: 'vitaminD', amount: 500 }]);
         const result = maximumNumberOfSupplement(supplement, constraints);
         expect(result).toBe(0);
     });
@@ -127,7 +163,7 @@ describe('maximumNumberOfSupplement', () => {
         const constraints: Constraints = {
             vitaminC: { target: 100, max: 125 }
         };
-        const supplement = { id: 'small', ingredients: [{ name: 'vitaminC', amount: 12.5 }, { name: 'vitaminD', amount: 500 }] };
+        const supplement = createSupplement('small', [{ name: 'vitaminC', amount: 12.5 }, { name: 'vitaminD', amount: 500 }]);
         const result = maximumNumberOfSupplement(supplement, constraints);
         expect(result).toBe(10);
     });

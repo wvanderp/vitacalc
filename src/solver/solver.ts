@@ -11,41 +11,63 @@ export type Option = Supplement;
 
 export type Options = Option[]
 
-export function solve(constraints: Constraints, options: Options): [number, Option][][]{
+export type SolverResult = {
+    supplements: [number, Option][];
+    distance: number;
+    numberOfSupplements: number;
+    constraints: Constraints; // Add this line
+}
+
+export type RequiredSupplement = {
+    supplement: Option;
+    amount: number;
+}
+
+export function solve(constraints: Constraints, options: Options, requiredSupplements: RequiredSupplement[] = []): SolverResult[] {
     const combinations = generateAllCombinations(options.map(option => maximumNumberOfSupplement(option, constraints)));
 
-    const results: [number, Option][][] = combinations.map((combination): [number, Option][] => {
+    const results: SolverResult[] = combinations.map((combination): [number, Option][] => {
         return combination.map((count, index) => [count, options[index]]);
     })
+    // filter out the results that don't include all required supplements
+    .filter(supplements => requiredSupplements.every(required => supplements.some(([count, option]) => option === required.supplement && count >= required.amount)))
     // filter out the results that exceed the constraints
     .filter(supplements => !AmountsExceedConstraints(calculateAmounts(supplements), constraints))
-    // sort the results by % of target, closest to target first
+    .map<SolverResult>(supplements => {
+        // include the distance from the target in the result
+        
+        // first calculate the % from the target for each ingredient
+        const amounts = calculateAmounts(supplements);
+        const distances = Object.entries(amounts).map(([key, value]) => {
+            const constraint = constraints[key];
+            if (constraint) {
+                return Math.abs(value - constraint.target) / constraint.target;
+            }
+            return 0;
+        });
+
+        // then calculate the total distance
+        const distance = distances.reduce((sum, distance) => sum + distance, 0);
+
+        return {
+            supplements,
+            distance,
+            numberOfSupplements: supplements.reduce((sum, [count]) => sum + count, 0)
+        };
+
+    })
+    // sort the results by % of target, closest to target first and then by number of supplements
     .sort((a, b) => {
-        const aAmounts = calculateAmounts(a);
-        const bAmounts = calculateAmounts(b);
-
-        const aDistance = Object.entries(aAmounts).reduce((sum, [key, value]) => {
-            const constraint = constraints[key];
-            if (constraint) {
-                return sum + Math.abs(constraint.target - value);
-            } else {
-                return sum;
-            }
-        }, 0);
-
-        const bDistance = Object.entries(bAmounts).reduce((sum, [key, value]) => {
-            const constraint = constraints[key];
-            if (constraint) {
-                return sum + Math.abs(constraint.target - value);
-            } else {
-                return sum;
-            }
-        }, 0);
-
-        return aDistance - bDistance;
+        if (a.distance === b.distance) {
+            return a.numberOfSupplements - b.numberOfSupplements;
+        }
+        return a.distance - b.distance
     });
 
-    return results
+    return results.map(result => ({
+        ...result,
+        constraints // Attach constraints to each SolverResult
+    }));
 }
 
 export function calculateAmounts(supplements: [number, Options[0]][]): Record<string, number> {
