@@ -37,30 +37,36 @@ function SupplementList() {
     };
 
     return (
-        <div className="supplement-list p-4">
-            <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => setShowForm(true)}>Add Supplement</button>
-            <div className="grid grid-cols-1 gap-4 mt-4">
-                {supplements.map((supplement) => (
-                    <div key={supplement.id} className="card bg-white shadow-lg hover:shadow-xl rounded-lg p-4 border border-gray-200 transition-shadow duration-300">
-                        <SupplementComponent supplement={supplement} />
-                        <div className="flex justify-end mt-2 border-t pt-2 gap-2">
-                            <button 
-                                className="text-gray-400 hover:text-blue-500 transition-colors duration-200" 
-                                onClick={() => handleEditSupplement(supplement)}
-                                title="Edit supplement"
-                            >
-                                <FaEdit className="h-4 w-4" />
-                            </button>
-                            <button 
-                                className="text-gray-400 hover:text-red-500 transition-colors duration-200" 
-                                onClick={() => handleDeleteSupplement(supplement.id)}
-                                title="Delete supplement"
-                            >
-                                <FaTrash className="h-4 w-4" />
-                            </button>
+        <div className="h-full flex flex-col p-6">
+            <button className="inline-flex items-center px-4 py-2 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200" onClick={() => setShowForm(true)}>
+                Add Supplement
+            </button>
+            <div className="flex-1 overflow-auto mt-6">
+                <div className="grid grid-cols-1 gap-6">
+                    {supplements.map((supplement) => (
+                        <div key={supplement.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl p-6 border border-gray-200 transition-shadow duration-300">
+                            <SupplementComponent supplement={supplement} />
+                            <div className="flex justify-end mt-4 pt-4 border-t border-gray-100 space-x-2">
+                                <button 
+                                    className="text-gray-400 hover:text-blue-500 transition-colors duration-200" 
+                                    onClick={() => handleEditSupplement(supplement)}
+                                    title="Edit supplement"
+                                >
+                                    <span className="sr-only">Edit</span>
+                                    <FaEdit className="h-4 w-4" />
+                                </button>
+                                <button 
+                                    className="text-gray-400 hover:text-red-500 transition-colors duration-200" 
+                                    onClick={() => handleDeleteSupplement(supplement.id)}
+                                    title="Delete supplement"
+                                >
+                                    <span className="sr-only">Delete</span>
+                                    <FaTrash className="h-4 w-4" />
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
             {showForm && (
                 <SupplementForm 

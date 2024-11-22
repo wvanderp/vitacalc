@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Constraint } from '../../repository/ConstraintRepository';
 import names from '../../repository/NamesRepository';
+import { NumberField } from '../fields/numberField';
 
 interface ConstraintFormProps {
   onAddConstraint: (constraint: Constraint) => void;
@@ -8,7 +9,7 @@ interface ConstraintFormProps {
   constraint?: Constraint;
 }
 
-const ConstraintForm: React.FC<ConstraintFormProps> = ({ onAddConstraint, onClose, constraint }) => {
+function ConstraintForm({ onAddConstraint, onClose, constraint }: ConstraintFormProps) {
   const [name, setName] = useState(constraint?.name || '');
   const [target, setTarget] = useState(constraint?.target || 0);
   const [max, setMax] = useState(constraint?.max || 0);
@@ -50,20 +51,18 @@ const ConstraintForm: React.FC<ConstraintFormProps> = ({ onAddConstraint, onClos
           ))}
         </select>
         <h2>Target</h2>
-        <input
-          type="number"
-          placeholder="Target"
+        <NumberField
           value={target}
-          onChange={(e) => setTarget(Number(e.target.value))}
+          onChange={(value) => setTarget(value ?? 0)}
           className="w-full p-2 mb-4 border border-gray-300 rounded"
+          placeholder="Target"
         />
         <h2>Max</h2>
-        <input
-          type="number"
-          placeholder="Max"
+        <NumberField
           value={max}
-          onChange={(e) => setMax(Number(e.target.value))}
+          onChange={(value) => setMax(value ?? 0)}
           className="w-full p-2 mb-4 border border-gray-300 rounded"
+          placeholder="Max"
         />
         <button
           onClick={handleSubmit}
@@ -81,6 +80,6 @@ const ConstraintForm: React.FC<ConstraintFormProps> = ({ onAddConstraint, onClos
       </div>
     </div>
   );
-};
+}
 
 export default ConstraintForm;

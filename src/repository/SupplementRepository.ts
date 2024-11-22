@@ -21,7 +21,6 @@ class SupplementRepository extends Repository<Supplement[]> {
       super('supplements', []);
     }
   
-
     addSupplement(supplement: Supplement): void {
       this.data.push(supplement);
       this.save();

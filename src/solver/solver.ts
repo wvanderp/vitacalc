@@ -52,7 +52,8 @@ export function solve(constraints: Constraints, options: Options, requiredSupple
         return {
             supplements,
             distance,
-            numberOfSupplements: supplements.reduce((sum, [count]) => sum + count, 0)
+            numberOfSupplements: supplements.reduce((sum, [count]) => sum + count, 0),
+            constraints // Include constraints in the result
         };
 
     })
@@ -109,11 +110,7 @@ export function maximumNumberOfSupplement(supplement: Option, constraints: Const
         }
     }
 
-    if (maxSupplements === Infinity) {
-        return 100;
-    }
-
-    return maxSupplements;
+    return Math.min(maxSupplements, 100);
 }
 
 /**

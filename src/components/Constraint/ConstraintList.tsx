@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ConstraintRepository, { Constraint, RequirementConstraint, RequirementRepository } from '../../repository/ConstraintRepository';
+import SupplementRepository, { Supplement } from '../../repository/SupplementRepository';
 import ConstraintComponent from './Constraint';
 import ConstraintForm from './ConstraintForm';
 import { FaTrash, FaEdit } from 'react-icons/fa';
@@ -12,6 +13,7 @@ function ConstraintList() {
     const [showRequirementForm, setShowRequirementForm] = useState(false);
     const [editingRequirement, setEditingRequirement] = useState<RequirementConstraint | undefined>(undefined);
     const [requirements, setRequirements] = useState<RequirementConstraint[]>([]);
+    const [supplements, setSupplements] = useState<Supplement[]>([]);
 
     useEffect(() => {
         const repository = new ConstraintRepository();
@@ -19,6 +21,9 @@ function ConstraintList() {
 
         const requirementRepository = new RequirementRepository();
         setRequirements(requirementRepository.getAllRequirements());
+
+        const supplementRepository = new SupplementRepository();
+        setSupplements(supplementRepository.getAllSupplements());
     }, []);
 
     const handleAddConstraint = (constraint: Constraint) => {
@@ -67,59 +72,74 @@ function ConstraintList() {
     };
 
     return (
-        <div className="constraint-list p-4">
-            <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => setShowForm(true)}>Add Constraint</button>
-            <button 
-                className="bg-green-500 text-white px-4 py-2 rounded ml-2" 
-                onClick={() => setShowRequirementForm(true)}
-            >
-                Add Required Supplement
-            </button>
-            <div className="grid grid-cols-1 gap-4 mt-4">
-                {constraints.map((constraint) => (
-                    <div key={constraint.id} className="card bg-white shadow-lg hover:shadow-xl rounded-lg p-4 border border-gray-200 transition-shadow duration-300">
-                        <ConstraintComponent constraint={constraint} />
-                        <div className="flex justify-end mt-2 border-t pt-2 gap-2">
-                            <button 
-                                className="text-gray-400 hover:text-blue-500 transition-colors duration-200" 
-                                onClick={() => handleEditConstraint(constraint)}
-                                title="Edit constraint"
-                            >
-                                <FaEdit className="h-4 w-4" />
-                            </button>
-                            <button 
-                                className="text-gray-400 hover:text-red-500 transition-colors duration-200" 
-                                onClick={() => handleDeleteConstraint(constraint.id)}
-                                title="Delete constraint"
-                            >
-                                <FaTrash className="h-4 w-4" />
-                            </button>
+        <div className="h-full flex flex-col p-6">
+            <div className="flex gap-4">
+                <button className="inline-flex items-center px-4 py-2 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200" onClick={() => setShowForm(true)}>
+                    Add Constraint
+                </button>
+                <button className="inline-flex items-center px-4 py-2 bg-white text-gray-700 font-medium rounded-md border border-gray-300 hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200" onClick={() => setShowRequirementForm(true)}>
+                    Add Required Supplement
+                </button>
+            </div>
+            <div className="flex-1 overflow-auto mt-6">
+                <div className="grid grid-cols-1 gap-6">
+                    {constraints.map((constraint) => (
+                        <div key={constraint.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl p-6 border border-gray-200 transition-shadow duration-300">
+                            <ConstraintComponent constraint={constraint} />
+                            <div className="flex justify-end mt-4 pt-4 border-t border-gray-100 gap-2">
+                                <button 
+                                    className="text-gray-400 hover:text-blue-500 transition-colors duration-200 p-2 rounded-md hover:bg-gray-50" 
+                                    onClick={() => handleEditConstraint(constraint)}
+                                    title="Edit constraint"
+                                >
+                                    <FaEdit className="h-4 w-4" />
+                                    <span className="sr-only">Edit</span>
+                                </button>
+                                <button 
+                                    className="text-gray-400 hover:text-red-500 transition-colors duration-200 p-2 rounded-md hover:bg-gray-50" 
+                                    onClick={() => handleDeleteConstraint(constraint.id)}
+                                    title="Delete constraint"
+                                >
+                                    <FaTrash className="h-4 w-4" />
+                                    <span className="sr-only">Delete</span>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
-                {requirements.map((requirement) => (
-                    <div key={requirement.id} className="card bg-white shadow-lg hover:shadow-xl rounded-lg p-4 border border-gray-200 transition-shadow duration-300">
-                        <div>Requirement supplement: {requirement.id}</div>
-                        <div>Amount: {requirement.amount}</div>
-                        <div>Supplement ID: {requirement.supplementId}</div>
-                        <div className="flex justify-end mt-2 border-t pt-2 gap-2">
-                            <button 
-                                className="text-gray-400 hover:text-blue-500 transition-colors duration-200" 
-                                onClick={() => handleEditRequirement(requirement)}
-                                title="Edit requirement"
-                            >
-                                <FaEdit className="h-4 w-4" />
-                            </button>
-                            <button 
-                                className="text-gray-400 hover:text-red-500 transition-colors duration-200" 
-                                onClick={() => handleDeleteRequirement(requirement.id)}
-                                title="Delete requirement"
-                            >
-                                <FaTrash className="h-4 w-4" />
-                            </button>
+                    ))}
+                    {requirements.map((requirement) => (
+                        <div key={requirement.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl p-6 border border-gray-200 transition-shadow duration-300">
+                            <div className="space-y-2">
+                                <h3 className="text-lg font-medium text-gray-900">
+                                    {supplements.find(s => s.id === requirement.supplementId)?.name || 'Unknown Supplement'}
+                                </h3>
+                                <div className="space-y-1">
+                                    <div className="flex justify-between items-center text-sm">
+                                        <span className="text-gray-500">Required Amount:</span>
+                                        <span className="font-medium text-gray-900">{requirement.amount}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex justify-end mt-4 pt-4 border-t border-gray-100 gap-2">
+                                <button 
+                                    className="text-gray-400 hover:text-blue-500 transition-colors duration-200 p-2 rounded-md hover:bg-gray-50" 
+                                    onClick={() => handleEditRequirement(requirement)}
+                                    title="Edit requirement"
+                                >
+                                    <FaEdit className="h-4 w-4" />
+                                    <span className="sr-only">Edit</span>
+                                </button>
+                                <button 
+                                    className="text-gray-400 hover:text-red-500 transition-colors duration-200 p-2 rounded-md hover:bg-gray-50" 
+                                    onClick={() => handleDeleteRequirement(requirement.id)}
+                                    title="Delete requirement"
+                                >
+                                    <FaTrash className="h-4 w-4" />
+                                    <span className="sr-only">Delete</span>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
             {showForm && (
                 <ConstraintForm 

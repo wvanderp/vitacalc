@@ -8,7 +8,7 @@ interface RequirementFormProps {
     requirement?: RequirementConstraint;
 }
 
-const RequirementForm: React.FC<RequirementFormProps> = ({ onAddRequirement, onClose, requirement }) => {
+function RequirementForm({ onAddRequirement, onClose, requirement }: RequirementFormProps) {
     const [amount, setAmount] = useState(requirement?.amount || 0);
     const [supplementId, setSupplementId] = useState<number | undefined>(requirement?.supplementId);
     const [supplements, setSupplements] = useState<Supplement[]>([]);
@@ -37,15 +37,6 @@ const RequirementForm: React.FC<RequirementFormProps> = ({ onAddRequirement, onC
                 <h2 className="text-2xl font-bold mb-4">{requirement ? 'Edit' : 'Add'} Requirement</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label className="block text-gray-700">Amount</label>
-                        <input
-                            type="number"
-                            value={amount}
-                            onChange={(e) => setAmount(Number(e.target.value))}
-                            className="w-full p-2 border border-gray-300 rounded"
-                        />
-                    </div>
-                    <div className="mb-4">
                         <label className="block text-gray-700">Supplement</label>
                         <select
                             value={supplementId}
@@ -59,6 +50,14 @@ const RequirementForm: React.FC<RequirementFormProps> = ({ onAddRequirement, onC
                                 </option>
                             ))}
                         </select>
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700">Amount</label>
+                        <input
+                            type="number"
+                            value={amount}
+                            onChange={(e) => setAmount(Number(e.target.value))}
+                            className="w-full p-2 border border-gray-300 rounded" />
                     </div>
                     <button
                         type="submit"
@@ -77,6 +76,6 @@ const RequirementForm: React.FC<RequirementFormProps> = ({ onAddRequirement, onC
             </div>
         </div>
     );
-};
+}
 
 export default RequirementForm;

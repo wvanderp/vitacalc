@@ -27,16 +27,25 @@ function CalculationColumn() {
   };
 
   return (
-    <div className="flex-1 p-4 border border-black">
-      <button onClick={handleCalculate} className="bg-blue-500 text-white p-2 rounded">
-        Calculate
-      </button>
-      {results.length > 0 && <h2 className="mt-4">found {results.length} results:</h2>}
-      {results.map((result, index) => (
-        <div key={index} className="mt-4 p-4 border border-gray-300">
-          <CombinationComponent combination={result} />
+    <div className="h-full flex flex-col p-6">
+        <button 
+            onClick={handleCalculate} 
+            className="inline-flex items-center justify-center px-4 py-2 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+        >
+            Calculate Combinations
+        </button>
+        <div className="flex-1 overflow-auto mt-6">
+            {results.length > 0 && (
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">
+                    Found {results.length} results:
+                </h2>
+            )}
+            <div className="space-y-6">
+                {results.map((result, index) => (
+                    <CombinationComponent key={index} combination={result} />
+                ))}
+            </div>
         </div>
-      ))}
     </div>
   );
 }

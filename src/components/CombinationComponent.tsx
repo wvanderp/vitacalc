@@ -5,7 +5,7 @@ interface CombinationComponentProps {
   combination: SolverResult;
 }
 
-const CombinationComponent: React.FC<CombinationComponentProps> = ({ combination }) => {
+function CombinationComponent({ combination }: CombinationComponentProps) {
   // Calculate summed components
   const summedComponents = combination.supplements.reduce((acc, [count, supplement]) => {
     supplement.ingredients.forEach((ingredient) => {
@@ -15,34 +15,51 @@ const CombinationComponent: React.FC<CombinationComponentProps> = ({ combination
   }, {} as Record<string, number>);
 
   return (
-    <div>
-      <p>distance: {combination.distance}</p>
-      <p>number of supplements: {combination.numberOfSupplements}</p>
-      {combination.supplements.map(([count, supplement], idx) => (
-          <p key={idx}>Supplement: <b>{count}x</b> {supplement.name}</p>
-      ))}
-      <table>
-        <thead>
-          <tr>
-            <th>Component</th>
-            <th>Summed</th>
-            <th>Target</th>
-            <th>Max</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.keys(summedComponents).map((key) => (
-            <tr key={key}>
-              <td>{key}</td>
-              <td>{summedComponents[key]}</td>
-              <td>{combination.constraints[key]?.target ?? '-'}</td>
-              <td>{combination.constraints[key]?.max ?? '-'}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="bg-white rounded-lg shadow-lg p-6 space-y-6">
+        <div className="grid grid-cols-2 gap-4">
+            <div className="bg-gray-50 p-4 rounded-md">
+                <p className="text-sm text-gray-500">Distance</p>
+                <p className="text-lg font-semibold text-gray-900">{combination.distance}</p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-md">
+                <p className="text-sm text-gray-500">Supplements</p>
+                <p className="text-lg font-semibold text-gray-900">{combination.numberOfSupplements}</p>
+            </div>
+        </div>
+        
+        <div className="space-y-2">
+            {combination.supplements.map(([count, supplement], idx) => (
+                <div key={idx} className="flex items-center space-x-2 p-2 bg-gray-50 rounded-md">
+                    <span className="font-bold text-blue-500">{count}×</span>
+                    <span className="text-gray-900">{supplement.name}</span>
+                </div>
+            ))}
+        </div>
+
+        <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                    <tr>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Component</th>
+                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Summed</th>
+                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Target</th>
+                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Max</th>
+                    </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                    {Object.keys(summedComponents).map((key) => (
+                        <tr key={key} className="hover:bg-gray-50 transition-colors duration-150">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{key}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">{summedComponents[key]}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">{combination.constraints[key]?.target ?? '-'}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">{combination.constraints[key]?.max ?? '-'}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     </div>
   );
-};
+}
 
 export default CombinationComponent;
